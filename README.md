@@ -2,6 +2,10 @@
 
 Assistente meteorológico que utiliza inteligência artificial local para interpretar dados climáticos e gerar análises automáticas de Sorocaba - SP.
 
+## 🖥️ Demonstração
+
+![Clima Inteligente - Sorocaba](clima-inteligente-sorocaba.png)
+
 ## 🚀 Tecnologias utilizadas
 
 - **n8n:** Automação do fluxo.
