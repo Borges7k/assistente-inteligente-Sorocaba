@@ -28,3 +28,39 @@ Demonstrar a integração entre automação, APIs e inteligência artificial loc
 ## 👨‍💻 Autor
 
 Projeto desenvolvido para fins de estudo e portfólio na área de AI Agent Builder.
+
+## ⚙️ Como executar o projeto
+
+### Pré-requisitos
+
+- [n8n](https://n8n.io/)
+- [Ollama](https://ollama.com/)
+- Modelo `qwen2.5:3b`
+
+### 1. Instalar o modelo de IA
+
+Com o Ollama instalado, execute no terminal:
+
+```bash
+ollama pull qwen2.5:3b
+```
+
+### 2. Executar o Ollama
+
+Certifique-se de que o Ollama esteja funcionando localmente.
+
+### 3. Importar o workflow
+
+1. Abra o n8n.
+2. Acesse a opção de importar workflow.
+3. Selecione `assistente-inteligente-sorocaba.json`.
+
+### 4. Configurar a conexão
+
+Configure a credencial Ollama no n8n, utilizando o endereço local adequado ao seu ambiente.
+
+### 5. Executar
+
+Execute o workflow manualmente para testar a integração entre a API meteorológica, o modelo de IA e a geração do relatório HTML.
+
+**Observação:** O workflow utiliza a API Open-Meteo para consultar os dados meteorológicos de Sorocaba - SP.
