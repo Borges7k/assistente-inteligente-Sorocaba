@@ -1,0 +1,214 @@
+{
+  "name": "Assistente Inteligente - Sorocaba",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8246287e-8f0b-44ed-a054-5821fc20ef60",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "-23.5015"
+            },
+            {
+              "name": "longitude",
+              "value": "-47.4526"
+            },
+            {
+              "name": "current",
+              "value": "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,weather_code,wind_speed_10m"
+            },
+            {
+              "name": "hourly",
+              "value": "precipitation_probability,temperature_2m"
+            },
+            {
+              "name": "timezone",
+              "value": "America/Sao_Paulo"
+            },
+            {
+              "name": "forecast_days",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e792b693-5f23-48cf-b88c-3dad3b0a775a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um assistente de monitoramento climático de Sorocaba, São Paulo.\n\nAnalise os dados meteorológicos recebidos e gere um alerta em português brasileiro, de forma clara e natural.\n\nInforme:\n- Temperatura atual e sensação térmica.\n- Umidade do ar.\n- Condições atuais do tempo.\n- Probabilidade de chuva nas próximas horas.\n- Horário com maior probabilidade de chuva.\n- Recomendações práticas para o dia.\n\nSe houver risco de chuva, destaque essa informação.\n\nNão invente dados. Utilize somente as informações recebidas.\n\nSeja objetivo, com linguagem simples e amigável, como um assistente pessoal enviando uma mensagem pelo WhatsApp.\n\nDADOS METEOROLÓGICOS:\n{{ JSON.stringify($json) }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        448,
+        0
+      ],
+      "id": "2d82858f-7dc6-4705-aceb-e6ca881f5ce2",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        384,
+        208
+      ],
+      "id": "7276c2df-1cec-4a72-955e-41a0b4214942",
+      "name": "Ollama Chat Model"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d7b33f86-5a5f-4742-b74f-57cb4c3a6929",
+              "name": "local",
+              "value": "Sorocaba - SP",
+              "type": "string"
+            },
+            {
+              "id": "38e386be-e758-4af3-96d4-97758db0526b",
+              "name": "data_consulta",
+              "value": "={{ $now.setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm') }}",
+              "type": "string"
+            },
+            {
+              "id": "f41666af-aa8f-4c03-9d5f-96d2e7ebfac6",
+              "name": "mensagem",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        816,
+        0
+      ],
+      "id": "8691abd6-0343-40fb-a1c8-117c499f4446",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "html": "\n<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Clima Inteligente | Sorocaba</title>\n<style>\n* { box-sizing: border-box; }\nbody {\n  margin: 0;\n  padding: 30px;\n  background: #101827;\n  color: #f1f5f9;\n  font-family: Arial, sans-serif;\n}\n.container {\n  max-width: 700px;\n  margin: auto;\n  background: #1e293b;\n  padding: 30px;\n  border-radius: 16px;\n}\nh1 { color: #38bdf8; }\n.info {\n  background: #334155;\n  padding: 18px;\n  border-radius: 10px;\n  margin-top: 18px;\n}\nsmall { color: #94a3b8; }\n</style>\n</head>\n<body>\n<div class=\"container\">\n  <h1>Clima Inteligente</h1>\n  <small>Monitoramento meteorológico • Sorocaba - SP</small>\n\n  <div class=\"info\">\n    <h2>Consulta meteorológica</h2>\n    <p><strong>Data:</strong> {{ $json.data_consulta }}</p>\n    <p><strong>Local:</strong> {{ $json.local }}</p>\n  </div>\n\n  <div class=\"info\">\n    <h2>Análise da inteligência artificial</h2>\n    <p>{{ $json.mensagem }}</p>\n  </div>\n</div>\n</body>\n</html>\n"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "44b4abea-bf31-42be-b6fd-9d8697e02132",
+      "name": "HTML"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1abc38b5-ff7e-4f18-8728-dfdbcb41ffdb",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "id": "Q70rQF0TFIIwijWo",
+  "tags": []
+}
